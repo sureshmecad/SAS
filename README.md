@@ -1,6 +1,3 @@
-# SAS
-SAS 
-
 # SAS-Mini-Projects
 A library of SAS Examples.  
 
