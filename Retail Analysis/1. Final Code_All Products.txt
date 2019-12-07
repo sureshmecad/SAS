@@ -1,0 +1,84 @@
+/* Step 1: Import data by name of Retail_Analysis */
+
+FILENAME REFFILE '/home/u40798691/sasuser.v94/DS WITH SAS/Retail Analysis.xlsx';
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=XLSX
+	OUT=WORK.Retail_Analysis;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Retail_Analysis;
+RUN;
+
+PROC PRINT DATA=Retail_Analysis;
+RUN;
+
+/* 4. Create a new data set with exponential, cube, squared, and log values for each variable */
+
+
+DATA QUANTITY;
+SET Retail_Analysis;
+Quantity_exp = exp(Quantity);
+Quantity_Cube = Quantity*Quantity*Quantity;
+Quantity_SQ = Quantity*Quantity;
+Quantity_Log = log(Quantity);
+RUN;
+
+DATA DISCOUNT;
+SET Retail_Analysis;
+Discount_exp = exp(Discount);
+Discount_Cube = Discount*Discount*Discount;
+Discount_SQ = Discount*Discount;
+Discount_Log = log(Discount);
+RUN;
+
+DATA PROFIT;
+SET Retail_Analysis;
+Profit_exp = exp(Profit);
+Profit_Cube = Profit*Profit*Profit;
+Profit_SQ = Profit*Profit;
+Profit_Log = log(Profit);
+RUN;
+
+DATA SHIPPING_COST;
+SET Retail_Analysis;
+Shipping_Cost_exp = exp(Shipping_Cost);
+Shipping_Cost_Cube = Shipping_Cost*Shipping_Cost*Shipping_Cost;
+Shipping_Cost_SQ = Shipping_Cost*Shipping_Cost;
+Shipping_Cost_Log = log(Shipping_Cost);
+RUN;
+
+/* Data Preparation */
+
+/* Step 2: Create a new variable Total_Sales = sales*quantity*/
+
+DATA Retail_Analysis;
+set Retail_Analysis;
+Total_Sales = sales*quantity;
+run;
+
+/* Step 3: Now predict total_sales */
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Discount Profit Shipping_Cost;
+run;
+
+/* Step 4 */:
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Discount Profit ;
+run;
+
+/* Step 5: Discount is insignificant in the results. Drop discount and rerun model */
+/* Below model if final model with quantity and profit as significant variables 
+and Adj Rsquare as .88 i.e 88% accuracy*/
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Profit ;
+run;
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Profit ;
+output out = _SalesPrediction p=Predicted_Total_Sales;
+run;

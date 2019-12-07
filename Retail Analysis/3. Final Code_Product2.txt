@@ -1,0 +1,28 @@
+FILENAME REFFILE '/home/u40798691/sasuser.v94/DS WITH SAS/Retail Analysis.xlsx';
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=XLSX
+	OUT=WORK.Retail_Analysis;
+	GETNAMES=YES;
+RUN;
+
+
+PROC PRINT DATA=Retail_Analysis;
+RUN;
+
+
+DATA WORK.RETAIL_ANALYSIS_Product2;
+SET Retail_Analysis;
+WHERE Products = 'Product2';
+RUN;
+
+
+DATA RETAIL_ANALYSIS_Product2;
+SET RETAIL_ANALYSIS_Product2;
+Total_Sales_Product2 = sales*quantity;
+run;
+
+
+PROC REG DATA=RETAIL_ANALYSIS_Product2;
+MODEL Total_Sales_Product2 = Quantity Profit ;
+run;

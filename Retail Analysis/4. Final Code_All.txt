@@ -1,0 +1,82 @@
+/* Step 1: Import data by name of Retail_Analysis */
+
+FILENAME REFFILE '/home/u40798691/sasuser.v94/DS WITH SAS/Retail Analysis.xlsx';
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=XLSX
+	OUT=WORK.Retail_Analysis;
+	GETNAMES=YES;
+RUN;
+
+PROC CONTENTS DATA=WORK.Retail_Analysis;
+RUN;
+
+PROC PRINT DATA=Retail_Analysis;
+RUN;
+
+/* Data Preparation */
+
+/* Step 2: Create a new variable Total_Sales = sales*quantity*/
+
+DATA Retail_Analysis;
+set Retail_Analysis;
+Total_Sales = sales*quantity;
+run;
+
+/* Step 3: Now predict total_sales */
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Discount Profit Shipping_Cost;
+run;
+
+/* Step 4 */:
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Discount Profit ;
+run;
+
+/* Step 5: Discount is insignificant in the results. Drop discount and rerun model */
+/* Below model if final model with quantity and profit as significant variables 
+and Adj Rsquare as .88 i.e 88% accuracy*/
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Profit ;
+run;
+
+PROC REG DATA=Retail_Analysis;
+MODEL Total_Sales= Quantity Profit ;
+output out = _SalesPrediction p=Predicted_Total_Sales;
+run;
+
+
+***********************************  PRODUCT 1  *********************************************
+
+
+FILENAME REFFILE '/home/u40798691/sasuser.v94/DS WITH SAS/Retail Analysis.xlsx';
+
+PROC IMPORT DATAFILE=REFFILE
+	DBMS=XLSX
+	OUT=WORK.Retail_Analysis;
+	GETNAMES=YES;
+RUN;
+
+
+PROC PRINT DATA=Retail_Analysis;
+RUN;
+
+
+DATA WORK.RETAIL_ANALYSIS_Product1;
+SET Retail_Analysis;
+WHERE Products = 'Product1';
+RUN;
+
+
+DATA RETAIL_ANALYSIS_Product1;
+SET RETAIL_ANALYSIS_Product1;
+Total_Sales_Product1 = sales*quantity;
+run;
+
+
+PROC REG DATA=RETAIL_ANALYSIS_Product1;
+MODEL Total_Sales_Product1 = Quantity Profit ;
+run;
